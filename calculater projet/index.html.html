@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المساعد الذكي: حاسبة وعملات</title>
+    <style>
+        /* --- CSS: التنسيقات --- */
+        :root {
+            --bg-color: #1e272e;
+            --panel-color: #2f3640;
+            --text-color: #f5f6fa;
+            --accent-color: #00a8ff;
+            --btn-bg: #353b48;
+            --btn-sci: #485460;
+            --btn-ops: #e1b12c;
+            --btn-eq: #4cd137;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--panel-color);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* --- أزرار التبديل (Tabs) --- */
+        .tabs {
+            display: flex;
+            background-color: #191f26;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            color: #7f8fa6;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
+            font-weight: bold;
+        }
+
+        .content-section {
+            display: none; /* إخفاء الأقسام افتراضياً */
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .content-section.active {
+            display: block; /* إظهار القسم النشط */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- الآلة الحاسبة --- */
+        .display {
+            width: 100%;
+            height: 70px;
+            background-color: #222;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 2rem;
+            text-align: right;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .keys-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 أعمدة للعمليات العلمية */
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 15px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: var(--btn-bg);
+            color: white;
+            transition: 0.2s;
+        }
+
+        .btn:hover { filter: brightness(1.2); }
+        .btn:active { transform: scale(0.95); }
+
+        .btn-sci { background-color: var(--btn-sci); font-size: 0.9rem; } /* الأزرار العلمية */
+        .btn-ops { background-color: var(--btn-ops); color: #000; font-weight: bold; } /* العمليات */
+        .btn-eq { background-color: var(--btn-eq); grid-column: span 2; color: #000; font-weight: bold; }
+        .btn-clr { background-color: #e84118; color: white; }
+
+        /* --- محول العملات --- */
+        .currency-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #dcdde1;
+        }
+
+        .form-control, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #353b48;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .convert-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .result-box {
+            background-color: #4cd137;
+            color: #000;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 15px;
+            display: none; /* مخفي حتى يتم الحساب */
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- أزرار التبديل العلوية -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('calculator')">🧮 الآلة العلمية</button>
+        <button class="tab-btn" onclick="switchTab('currency')">💱 صرف العملات</button>
+    </div>
+
+    <!-- قسم الآلة الحاسبة -->
+    <div id="calculator" class="content-section active">
+        <input type="text" class="display" id="display" readonly placeholder="0">
+        <div class="keys-grid">
+            <!-- الصف العلمي الأول -->
+            <button class="btn btn-sci" onclick="addFunc('Math.sin(')">sin</button>
+            <button class="btn btn-sci" onclick="addFunc('Math.cos(')">cos</button>
+            <button class="btn btn-sci" onclick="addFunc('Math.tan(')">tan</button>
+            <button class="btn btn-sci" onclick="addVal('(')">(</button>
+            <button class="btn btn-sci" onclick="addVal(')')">)</button>
+
+            <!-- الصف العلمي الثاني -->
+            <button class="btn btn-sci" onclick="addFunc('Math.log10(')">log</button>
+            <button class="btn btn-sci" onclick="addFunc('Math.log(')">ln</button>
+            <button class="btn btn-sci" onclick="addFunc('Math.sqrt(')">√</button>
+            <button class="btn btn-sci" onclick="addVal('**2')">x²</button>
+            <button class="btn btn-sci" onclick="addVal('**')">xʸ</button>
+
+            <!-- الأرقام والعمليات -->
+            <button class="btn btn-clr" onclick="clearDisplay()">AC</button>
+            <button class="btn btn-clr" onclick="deleteLast()">DEL</button>
+            <button class="btn btn-ops" onclick="addVal('%')">%</button>
+            <button class="btn btn-ops" onclick="addVal('/')">÷</button>
+            <button class="btn btn-sci" onclick="addVal(Math.PI)">π</button>
+
+            <button class="btn" onclick="addVal('7')">7</button>
+            <button class="btn" onclick="addVal('8')">8</button>
+            <button class="btn" onclick="addVal('9')">9</button>
+            <button class="btn btn-ops" onclick="addVal('*')">×</button>
+            <button class="btn btn-sci" onclick="addVal(Math.E)">e</button>
+
+            <button class="btn" onclick="addVal('4')">4</button>
+            <button class="btn" onclick="addVal('5')">5</button>
+            <button class="btn" onclick="addVal('6')">6</button>
+            <button class="btn btn-ops" onclick="addVal('-')">-</button>
+            <button class="btn" onclick="addVal('.')">.</button>
+
+            <button class="btn" onclick="addVal('1')">1</button>
+            <button class="btn" onclick="addVal('2')">2</button>
+            <button class="btn" onclick="addVal('3')">3</button>
+            <button class="btn btn-ops" onclick="addVal('+')">+</button>
+            <button class="btn" onclick="addVal('00')">00</button>
+            
+            <button class="btn" onclick="addVal('0')">0</button>
+            <button class="btn btn-eq" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <!-- قسم محول العملات -->
+    <div id="currency" class="content-section">
+        <div class="currency-wrapper">
+            <div class="form-group">
+                <label>المبلغ:</label>
+                <input type="number" id="amount" class="form-control" placeholder="أدخل المبلغ" value="1">
+            </div>
+
+            <div class="form-group">
+                <label>من:</label>
+                <select id="fromCurrency">
+                    <option value="USD" selected>🇺🇸 دولار أمريكي (USD)</option>
+                    <option value="EUR">🇪🇺 يورو (EUR)</option>
+                    <option value="GBP">🇬🇧 جنيه استرليني (GBP)</option>
+                    <option value="SAR">🇸🇦 ريال سعودي (SAR)</option>
+                    <option value="AED">🇦🇪 درهم إماراتي (AED)</option>
+                    <option value="KWD">🇰🇼 دينار كويتي (KWD)</option>
+                    <option value="EGP">🇪🇬 جنيه مصري (EGP)</option>
+                    <option value="MAD">🇲🇦 درهم مغربي (MAD)</option>
+                    <option value="JOD">🇯🇴 دينار أردني (JOD)</option>
+                    <option value="TRY">🇹🇷 ليرة تركية (TRY)</option>
+                    <option value="CNY">🇨🇳 يوان صيني (CNY)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>إلى:</label>
+                <select id="toCurrency">
+                    <option value="USD">🇺🇸 دولار أمريكي (USD)</option>
+                    <option value="EUR">🇪🇺 يورو (EUR)</option>
+                    <option value="GBP">🇬🇧 جنيه استرليني (GBP)</option>
+                    <option value="SAR" selected>🇸🇦 ريال سعودي (SAR)</option>
+                    <option value="AED">🇦🇪 درهم إماراتي (AED)</option>
+                    <option value="KWD">🇰🇼 دينار كويتي (KWD)</option>
+                    <option value="EGP">🇪🇬 جنيه مصري (EGP)</option>
+                    <option value="MAD">🇲🇦 درهم مغربي (MAD)</option>
+                    <option value="JOD">🇯🇴 دينار أردني (JOD)</option>
+                    <option value="TRY">🇹🇷 ليرة تركية (TRY)</option>
+                    <option value="CNY">🇨🇳 يوان صيني (CNY)</option>
+                </select>
+            </div>
+
+            <button class="convert-btn" onclick="convertCurrency()">تحويل العملة 💱</button>
+            
+            <div id="conversionResult" class="result-box">0.00</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- منطق التبديل بين الأقسام (Tabs) ---
+    function switchTab(tabName) {
+        // إخفاء كل الأقسام
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        // إزالة التنشيط من كل الأزرار
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // تفعيل القسم المختار
+        document.getElementById(tabName).classList.add('active');
+        // تفعيل الزر المناسب
+        event.target.classList.add('active');
+    }
+
+    // --- منطق الآلة الحاسبة العلمية ---
+    let display = document.getElementById('display');
+    let currentInput = "";
+
+    function addVal(val) {
+        currentInput += val;
+        display.value = currentInput;
+    }
+
+    function addFunc(func) {
+        currentInput += func;
+        display.value = currentInput;
+    }
+
+    function clearDisplay() {
+        currentInput = "";
+        display.value = "";
+    }
+
+    function deleteLast() {
+        currentInput = currentInput.slice(0, -1);
+        display.value = currentInput;
+    }
+
+    function calculate() {
+        try {
+            // استخدام eval لحساب العمليات (يجب الحذر مع eval في المشاريع الكبيرة)
+            let result = eval(currentInput); 
+            display.value = result;
+            currentInput = result.toString();
+        } catch (error) {
+            display.value = "خطأ رياضي";
+            setTimeout(() => { clearDisplay() }, 1500);
+        }
+    }
+
+    // --- منطق تحويل العملات ---
+    
+    // ملاحظة: هذه الأسعار تقريبية وثابتة (لأننا لا نستخدم API حقيقي يتطلب اشتراكاً)
+    // القاعدة: الدولار الأمريكي USD هو الأساس = 1
+    const exchangeRates = {
+        "USD": 1,
+        "EUR": 0.92,
+        "GBP": 0.79,
+        "SAR": 3.75,
+        "AED": 3.67,
+        "KWD": 0.31,
+        "EGP": 48.50, // سعر تقريبي متغير
+        "MAD": 10.10,
+        "JOD": 0.71,
+        "TRY": 32.50,
+        "CNY": 7.23
+    };
+
+    function convertCurrency() {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const from = document.getElementById('fromCurrency').value;
+        const to = document.getElementById('toCurrency').value;
+        const resultBox = document.getElementById('conversionResult');
+
+        if (isNaN(amount) || amount <= 0) {
+            resultBox.style.display = 'block';
+            resultBox.style.backgroundColor = '#e84118';
+            resultBox.innerText = "أدخل مبلغاً صحيحاً";
+            return;
+        }
+
+        // الحساب: (المبلغ / سعر عملة المصدر بالنسبة للدولار) * سعر عملة الهدف بالنسبة للدولار
+        const rateFrom = exchangeRates[from];
+        const rateTo = exchangeRates[to];
+        
+        const result = (amount / rateFrom) * rateTo;
+
+        resultBox.style.display = 'block';
+        resultBox.style.backgroundColor = '#4cd137';
+        // عرض النتيجة برقمين عشريين
+        resultBox.innerText = `${result.toFixed(2)} ${to}`;
+    }
+</script>
+
+</body>
+</html>

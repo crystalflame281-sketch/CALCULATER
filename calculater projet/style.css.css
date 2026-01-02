@@ -1,0 +1,216 @@
+/* --- 1. متغيرات الألوان (لسهولة التعديل) --- */
+:root {
+    --bg-body: #1e272e;       /* لون خلفية الصفحة */
+    --bg-container: #2f3640;  /* لون جسم الآلة */
+    --text-main: #f5f6fa;     /* لون النصوص */
+    --accent-color: #00a8ff;  /* اللون المميز (للتبويبات والتحويل) */
+    
+    /* ألوان الأزرار */
+    --btn-bg: #353b48;        /* أزرار الأرقام */
+    --btn-sci: #485460;       /* الأزرار العلمية */
+    --btn-ops: #e1b12c;       /* عمليات الضرب والقسمة... */
+    --btn-eq: #4cd137;        /* زر اليساوي */
+    --btn-del: #e84118;       /* زر الحذف */
+}
+
+/* --- 2. إعدادات عامة --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* --- 3. الحاوية الرئيسية --- */
+.container {
+    width: 100%;
+    max-width: 420px; /* عرض مناسب للهواتف والحاسوب */
+    background-color: var(--bg-container);
+    border-radius: 20px;
+    overflow: hidden; /* لضمان عدم خروج العناصر عن الحواف */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid #444;
+}
+
+/* --- 4. شريط التبويب (Tabs) --- */
+.tabs {
+    display: flex;
+    background-color: #191f26;
+    border-bottom: 2px solid #444;
+}
+
+.tab-btn {
+    flex: 1; /* جعل الأزرار تأخذ مساحة متساوية */
+    padding: 18px;
+    background: none;
+    border: none;
+    color: #7f8fa6;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: var(--accent-color);
+    border-bottom: 3px solid var(--accent-color);
+}
+
+/* --- 5. أقسام المحتوى --- */
+.content-section {
+    display: none; /* إخفاء الأقسام افتراضياً */
+    padding: 20px;
+    animation: fadeIn 0.4s ease; /* تأثير ظهور ناعم */
+}
+
+.content-section.active {
+    display: block; /* إظهار القسم النشط */
+}
+
+/* تأثير الحركة عند التبديل */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 6. تنسيق الآلة الحاسبة --- */
+.display {
+    width: 100%;
+    height: 80px;
+    background-color: #1e272e;
+    color: #fff;
+    border: 2px solid #444;
+    border-radius: 12px;
+    font-size: 2rem;
+    text-align: right;
+    padding: 15px;
+    margin-bottom: 20px;
+    outline: none;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.keys-grid {
+    display: grid;
+    /* 5 أعمدة لتناسب الأزرار العلمية الكثيرة */
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 10px;
+}
+
+/* تنسيق الأزرار العام */
+.btn {
+    padding: 15px 5px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    background-color: var(--btn-bg);
+    color: white;
+    font-weight: bold;
+    transition: transform 0.1s, filter 0.2s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+}
+
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+/* ألوان مخصصة للأزرار */
+.btn-sci { background-color: var(--btn-sci); font-size: 0.9rem; font-style: italic; }
+.btn-ops { background-color: var(--btn-ops); color: #2f3640; }
+.btn-clr { background-color: var(--btn-del); color: white; }
+.btn-eq { 
+    background-color: var(--btn-eq); 
+    color: #2f3640; 
+    grid-column: span 2; /* زر اليساوي يأخذ مساحة زرين */
+}
+
+/* --- 7. تنسيق محول العملات --- */
+.currency-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #dcdde1;
+    font-weight: bold;
+}
+
+/* حقول الإدخال والقوائم */
+.form-control, select {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #555;
+    background-color: #353b48;
+    color: white;
+    font-size: 1.1rem;
+    outline: none;
+    cursor: pointer;
+    transition: border 0.3s;
+}
+
+select:hover, .form-control:focus {
+    border-color: var(--accent-color);
+}
+
+/* زر التحويل */
+.convert-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.convert-btn:hover {
+    background-color: #0097e6;
+}
+
+/* صندوق النتيجة */
+.result-box {
+    background-color: var(--btn-eq);
+    color: #2f3640;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    display: none; /* مخفي حتى يتم الضغط */
+    box-shadow: 0 5px 15px rgba(76, 209, 55, 0.3);
+}
+
+/* --- 8. تحسينات للشاشات الصغيرة --- */
+@media (max-width: 400px) {
+    .btn {
+        padding: 12px 0;
+        font-size: 1rem;
+    }
+    .keys-grid {
+        gap: 6px;
+    }
+}
